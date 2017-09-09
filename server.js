@@ -17,7 +17,7 @@ var url = 'mongodb://fb:123456@ds127994.mlab.com:27994/botfb';
 
 var admin_online = true;
 var access_token = 'EAAYkZCAfAgtIBAHvv9GnM5iAO9OZAJXJZAeArtNjNBLXDKYUHOb2YkaR1SQLqHVF4xj8BHSEWapoRzQHBGj3FIvi6B8elSbEzXZC1G3WMrNXwMZCU0ad2ulEhzsqZATm0IZBTLboTLWb3rxiEmX10UZCmJ9H8zDFsF5IACzJ7qSWZBfupjBpLrVXI3oERSuk9kQlNyCghTIVISwZDZD';
-server.listen(process.env.PORT || 3001);
+server.listen(3001);
 
 io.on('connection', function (socket) {
     console.log('New connection');
