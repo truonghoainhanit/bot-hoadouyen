@@ -17,7 +17,7 @@ var url = 'mongodb://localhost:27017/dbfb';
 
 var admin_online = true;
 var access_token = 'EAAYkZCAfAgtIBAM7zlurIJooQ9SHxte3rxq7ZA3RIS7QOcNRk1uwN9U5qIDb0IZBcx5MtkPvoHUIllNuVpZARwRwPMD7VK79KKQwaWpeiCqL8GQHeg5OZBYlOl5WKLR1egP7BBagUZARPEZBKJA8siR8kEO9kA2HGQjgQocZAFpVGDvgV9ExxC8On13d3f8XHriMIHLhqXYaigZDZD';
-server.listen(8081);
+server.listen(process.env.PORT || 3001);
 io.on('connection', function (socket) {
     console.log('New connection');
     socket.emit('new connection', { room: socket.id, message: 'Xin chào pé là bot Altamedia' });
