@@ -13,7 +13,7 @@ var assert = require('assert');
 var Promise = require('promise');
 var ObjectId = require('mongodb').ObjectID;
 var keySim = 'd935c63d-0c20-4e88-9e1e-7801366b0189';
-var url = 'mongodb://localhost:27017/dbfb';
+var url = 'mongodb://heroku_hoadouyen:32541234@ds129144.mlab.com:29144/heroku_b9r33kg4';
 
 var admin_online = true;
 var access_token = 'EAAYkZCAfAgtIBAM7zlurIJooQ9SHxte3rxq7ZA3RIS7QOcNRk1uwN9U5qIDb0IZBcx5MtkPvoHUIllNuVpZARwRwPMD7VK79KKQwaWpeiCqL8GQHeg5OZBYlOl5WKLR1egP7BBagUZARPEZBKJA8siR8kEO9kA2HGQjgQocZAFpVGDvgV9ExxC8On13d3f8XHriMIHLhqXYaigZDZD';
