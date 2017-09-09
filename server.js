@@ -13,10 +13,10 @@ var assert = require('assert');
 var Promise = require('promise');
 var ObjectId = require('mongodb').ObjectID;
 var keySim = 'd935c63d-0c20-4e88-9e1e-7801366b0189';
-var url = 'mongodb://heroku_hoadouyen:32541234@ds129144.mlab.com:29144/heroku_b9r33kg4';
+var url = 'mongodb://fb:123456@ds127994.mlab.com:27994/botfb';
 
 var admin_online = true;
-var access_token = 'EAAYkZCAfAgtIBAM7zlurIJooQ9SHxte3rxq7ZA3RIS7QOcNRk1uwN9U5qIDb0IZBcx5MtkPvoHUIllNuVpZARwRwPMD7VK79KKQwaWpeiCqL8GQHeg5OZBYlOl5WKLR1egP7BBagUZARPEZBKJA8siR8kEO9kA2HGQjgQocZAFpVGDvgV9ExxC8On13d3f8XHriMIHLhqXYaigZDZD';
+var access_token = 'EAAYkZCAfAgtIBAHvv9GnM5iAO9OZAJXJZAeArtNjNBLXDKYUHOb2YkaR1SQLqHVF4xj8BHSEWapoRzQHBGj3FIvi6B8elSbEzXZC1G3WMrNXwMZCU0ad2ulEhzsqZATm0IZBTLboTLWb3rxiEmX10UZCmJ9H8zDFsF5IACzJ7qSWZBfupjBpLrVXI3oERSuk9kQlNyCghTIVISwZDZD';
 server.listen(process.env.PORT || 3001);
 io.on('connection', function (socket) {
     console.log('New connection');
@@ -149,6 +149,7 @@ function getAllPostFB(limitPost) {
 }
 
 function getAllCommentFB(idComment) {
+
     request.get({ url: 'https://graph.facebook.com/v2.9/' + idComment + '/comments?access_token=' + access_token }, function (err, httpResponse, body) {
         if (httpResponse.statusCode == 200) {
             var obj = JSON.parse(body).data;
@@ -162,6 +163,7 @@ function getAllCommentFB(idComment) {
                                 if (returnCheck.result == false) {
                                     //insert new
                                     MongoClient.connect(url, function (err, db) {
+									console.log(err);
                                         var col = db.collection('WaitComment');
                                         col.insertOne({ comment: returnCheck.objback, parentid: returnCheck.id }).then(function (r) {
                                             assert.equal(1, r.insertedCount);
