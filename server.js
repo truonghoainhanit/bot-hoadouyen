@@ -12,12 +12,15 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var Promise = require('promise');
 var ObjectId = require('mongodb').ObjectID;
-var keySim = 'd935c63d-0c20-4e88-9e1e-7801366b0189';
-var url = 'mongodb://fb:123456@ds127994.mlab.com:27994/botfb';
+var keySim = '';
+var url = 'mongodb://localhost:27017/dbfb';
+var idUserBot = '103369500263135';
+var fs  = require("fs");
+var arrayKeySimsimi = fs.readFileSync(__dirname + "/keySim.txt").toString().split('\n');
 
 var admin_online = true;
 var access_token = 'EAAYkZCAfAgtIBAHvv9GnM5iAO9OZAJXJZAeArtNjNBLXDKYUHOb2YkaR1SQLqHVF4xj8BHSEWapoRzQHBGj3FIvi6B8elSbEzXZC1G3WMrNXwMZCU0ad2ulEhzsqZATm0IZBTLboTLWb3rxiEmX10UZCmJ9H8zDFsF5IACzJ7qSWZBfupjBpLrVXI3oERSuk9kQlNyCghTIVISwZDZD';
-server.listen(3000);
+server.listen(process.env.PORT || 3001);
 
 io.on('connection', function (socket) {
     console.log('New connection');
@@ -44,9 +47,39 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-//app.listen(process.env.PORT || 3000, function(){
-//  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
-//});
+app.listen(process.env.PORT || 3000, function(){
+
+  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+  getKeySimsimi();
+});
+
+function getKeySimsimi()
+{
+    keySim = '';
+	if(arrayKeySimsimi.length >0)
+	{
+	 keySim = arrayKeySimsimi[0];
+	 console.log('Key Simsimi: ' + keySim);
+
+	}
+}
+function removeKeySimsimiError()
+{
+	if(arrayKeySimsimi.length >0)
+	{
+		arrayKeySimsimi.splice(0, 1);
+		var textSave = arrayKeySimsimi.join('\n').toString();
+		console.log(textSave);
+		fs.writeFile(__dirname + '/keySim.txt', textSave , function (err) {
+		  if (err) {
+			console.log('Remove keySim ' + keySim + ' errror:' + err);
+		  } else {
+			console.log('Remove keySim: ' + keySim);
+			getKeySimsimi();
+		  }
+		})
+	}
+}
 
 app.get('/status', (req, res) => {
     admin_online = !admin_online;
@@ -87,7 +120,6 @@ function countdownTime() {
         timer = 0;
     }
 }
-
 
 app.get('/webhook', function (req, res) {
     if (req.query['hub.verify_token'] === 'altamedia2017') {
@@ -148,7 +180,6 @@ function getAllPostFB(limitPost) {
             reject(false);
         }
     })
-
 
 }
 
@@ -229,16 +260,14 @@ function getAllCommentFBChild(objInsert){
             reject(e);
         }
     });
-
-
-
-	
 }
 
 function checkInsertDB(objInsert, idComment) {
     return new Promise(function (resolve, reject) {
         try {
-            MongoClient.connect(url, function (err, db) {
+		if(objInsert.from.id != idUserBot)
+		{
+			MongoClient.connect(url, function (err, db) {
                 var col = db.collection('AllComment');
                 col.findOne({ id: objInsert.id }, function (err, document) {
                     if (document == null) {
@@ -259,6 +288,11 @@ function checkInsertDB(objInsert, idComment) {
                     db.close();
                 });
             });
+		}
+         else
+		{
+			resolve({ result: true, objback: objInsert, id: idComment });
+		}		 
         } catch (e) {
             reject(e);
         }
@@ -293,46 +327,6 @@ function SelectCommentWait() {
 function commentFB(objInsert, idComment) {
     getChatSimsimi(objInsert.message).then(
         function (message_return) {
-
-            //chạy test
-            //MongoClient.connect(url, function (err, db) {
-            //    var col = db.collection('AllComment');
-            //    try {
-            //        col.insertOne(objInsert);
-            //        console.log('Thêm vào table AllComment: ' + objInsert.id);
-            //    } catch (e) {
-            //        console.log('Thêm vào table AllComment bị lỗi: ' + e);
-            //    }
-            //    db.close();
-            //});
-
-
-            //MongoClient.connect(url, function (err, db) {
-            //    var col = db.collection('AllComment');
-            //    try {
-            //        col.insertOne({id: '104048973528521_104171386849613'});
-            //        console.log('Thêm vào table AllComment comment vừa trả lời: 104048973528521_104171386849613');
-            //    } catch (e) {
-            //        console.log('Thêm vào table AllComment comment vừa trả lời bị lỗi: ' + e);
-            //    }
-            //    db.close();
-            //});
-
-
-            //MongoClient.connect(url, function (err, db) {
-            //    var colWaitComment = db.collection('WaitComment');
-            //    try {
-            //        colWaitComment.deleteMany({ 'comment.id': objInsert.id });
-            //        console.log('Xóa khỏi table CommentWait id: ' + objInsert.id + '_' + objInsert.message);
-            //    } catch (e) {
-            //        console.log('Xóa khỏi table CommentWait bị lỗi: ' + e);
-            //    }
-            //    db.close();
-            //});
-
-
-
-            //chạy thật
             request.post('https://graph.facebook.com/v2.9/' + idComment + '/comments?access_token=' + access_token,
                 { form: { message: objInsert.from.name + ' ' + message_return.response } },
 
@@ -393,16 +387,9 @@ function commentFB(objInsert, idComment) {
 }
 
 
-
 function getChatSimsimi(message_input) {
     return new Promise(function (resolve, reject) {
         console.log('Lấy trả lời simsimi: ' + message_input);
-
-        //chạy test
-        //resolve({ response: "test thôi nhé", id: "57289532", result: 100, msg: "OK." });
-        //console.log('Simsimi trả lời: test thôi nhé');
-
-
         if (message_input.trim() == '') {
             resolve({ response: "Em không xem hình được đâu hiu hiu!!!", id: "57289532", result: 100, msg: "OK." });
         }
@@ -414,6 +401,10 @@ function getChatSimsimi(message_input) {
                     console.log('Simsimi trả lời: ' + obj.response);
                 }
                 else {
+				   if(body.indexOf('Trial app is expired') >=0)
+				   {
+					removeKeySimsimiError();
+				   }
                     console.log('getChatSimsimi error, body:' + body);
                     reject('getChatSimsimi: ' + body);
                 }
