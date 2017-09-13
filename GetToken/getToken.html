@@ -1,0 +1,79 @@
+
+<html>
+<head>
+    <title>LoginFB</title>
+</head>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="socket.io.js"></script>
+
+<script>
+
+
+
+	var socket = io.connect('http://localhost:3001');
+            socket.on('LoginFacebookGo', function (data) {
+                if(data.code == 'loginfb')
+                {
+
+    location.reload();
+                }
+            })
+
+
+  window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '1729514740679378',
+            xfbml      : true,
+            version    : 'v2.8'
+        });
+
+     FB.AppEvents.logPageView();
+    };
+
+    (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function  login(){
+            setTimeout(function() {
+    fblg();
+            }, 3000);
+
+
+    }
+
+    function fblg(){
+     FB.login(function(response){
+                    if(response.status === 'connected'){
+                        document.getElementById('status').innerHTML = 'we are connect';
+                        document.getElementById('accessToken').innerHTML = response.authResponse.accessToken;
+                            socket.emit('LoginFacebookBack', {accessToken: response.authResponse.accessToken});
+                        return {status:'suscess', accessToken: response.authResponse.accessToken};
+                    } else if(response.status === 'not_authorized') {
+                         document.getElementById('status').innerHTML = 'we are not logged in.'
+                        return {status:'error', accessToken: 'we are not logged in.'};
+                    } else {
+                        document.getElementById('status').innerHTML = 'you are not logged in to Facebook';
+                        resolve({status:'error', accessToken: 'you are not logged in to Facebook'});
+                    }
+                });
+    }
+
+    function getInfo() {
+        FB.api('/me', 'GET', {fields: 'first_name,last_name,name,id'}, function(response) {
+            document.getElementById('status').innerHTML = response.id;
+        });
+    }
+</script>
+<body onload="login();">
+    <div id="fb-root"></div>
+    <button onclick="login()">Login</button>
+    <div id="status">Status</div>
+    <div id="accessToken">NotLogin</div>
+</body>
+</html>
